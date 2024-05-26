@@ -23,7 +23,7 @@ Chart.defaults.maintainAspectRatio = false;
 Chart.defaults.responsive = true;
 
 const DiagnosisContainer = styled.div`
-	max-width: 800px;
+	max-width: 780px;
 	position: relative;
 `;
 
@@ -52,18 +52,22 @@ const Card = styled.div`
 `;
 
 const PatientInfo = styled.div`
+	width: 330px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-top: 20px;
+	margin-top: -20px;
+	border-radius: 20px;
+	background: var(--white-0);
 `;
 
 const ProfilePicture = styled.img`
-	width: 100px;
-	height: 100px;
+	width: 200px;
+	height: 200px;
+	display: inline-block;
+	margin: 20px auto;
 	border-radius: 50%;
-	object-fit: cover;
-	margin-bottom: 10px;
+	text-align: center;
 `;
 
 function PatientDetails() {
@@ -132,7 +136,12 @@ function PatientDetails() {
 	console.log(curPatient);
 
 	return (
-		<div style={{ display: "grid", gridTemplateColumns: "1fr 367px" }}>
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "1fr 367px",
+				gap: "20px",
+			}}>
 			<DiagnosisContainer>
 				<div
 					style={{
@@ -257,15 +266,19 @@ function PatientDetails() {
 			</DiagnosisContainer>
 
 			<PatientInfo>
-				<ProfilePicture
-					src='/public/doctor/doctorx2.png'
-					alt='Jessica Taylor'
-				/>
-				<h3>Jessica Taylor</h3>
-				<p>Date Of Birth: August 23, 1996</p>
-				<p>Gender: Female</p>
-				<p>Contact Info: (415) 555-1234</p>
-				<p>Emergency Contacts: (415) 555-5678</p>
+				<div className='user'>
+					<div style={{ textAlign: "center" }}>
+						<ProfilePicture
+							src={curPatient?.profile_picture}
+							alt='Jessica Taylor'
+						/>
+						<h3>Jessica Taylor</h3>
+					</div>
+					<p>Date Of Birth: August 23, 1996</p>
+					<p>Gender: Female</p>
+					<p>Contact Info: (415) 555-1234</p>
+					<p>Emergency Contacts: (415) 555-5678</p>
+				</div>
 			</PatientInfo>
 		</div>
 	);
