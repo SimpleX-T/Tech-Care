@@ -1,0 +1,37 @@
+*,
+*::after,
+*::before {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	border: none;
+	outline: none;
+}
+
+:root {
+	--bg-primary: #f6f7f8;
+	--bg-secondary: #e3e4e6;
+	--bg-active-1: #01f0d0;
+	--bg-active-2: #d8fcf7;
+	--white-0: #ffffff;
+	--white-10: #c8ccd41a;
+	--text-dark: #072635;
+	--pink-0: #ffe6e9;
+	--pink-100: #ffe6f1;
+	--pink-200: #e66fd2;
+	--pink-300: #c26eb4;
+}
+
+body {
+	font-family: "Manrope", sans-serif;
+}
+
+:link:hover,
+:link.active {
+	background: var(--bg-active-1);
+}
+
+.patient:hover,
+.patient.active {
+	background: var(--bg-active-2);
+}
