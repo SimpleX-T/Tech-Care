@@ -4,7 +4,7 @@ import PatientList from "./PatientList";
 const Aside = styled.aside`
 	/* position: fixed; */
 	width: 100%;
-	height: 1068px;
+	height: 1080px;
 	background: var(--white-0);
 	border-radius: 20px;
 	overflow: hidden;
