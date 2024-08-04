@@ -26,6 +26,7 @@ function PatientProvider({ children }) {
 								username,
 								password
 							)}`,
+							"Content-Type": "application/json",
 						},
 						redirect: "follow",
 					}

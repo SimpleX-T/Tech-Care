@@ -4,8 +4,8 @@ function ListItem({ values }) {
 		<li
 			style={{
 				display: "grid",
-				gridTemplateColumns: "1fr 1fr 100px",
-				// gap: "10px",
+				gridTemplateColumns: "2fr 4fr 1fr",
+				gap: "10px",
 				padding: "8px 20px",
 				marginBlock: "10px",
 				borderBottom: "1px solid var(--bg-secondary)",

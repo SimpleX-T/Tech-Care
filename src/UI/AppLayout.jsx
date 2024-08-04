@@ -5,7 +5,7 @@ import styled from "styled-components";
 const StyledAppLayout = styled.div`
 	background: var(--bg-primary);
 	min-height: 100vh;
-	padding: 20px;
+	padding-top: 20px;
 `;
 
 function AppLayout() {

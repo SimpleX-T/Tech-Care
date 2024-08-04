@@ -1,73 +1,75 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
-import Chart from "chart.js/auto";
 import { useParams } from "react-router-dom";
 import { usePatients } from "../hooks/PatientProvider";
 import { Line } from "react-chartjs-2";
 import styled from "styled-components";
 import DiagnosticsList from "../UI/DiagnosticsList";
+import { Chart, registerables } from "chart.js";
 
-Chart.defaults.plugins.title.display = true;
-Chart.defaults.plugins.title.align = "start";
-Chart.defaults.plugins.title.font.size = 18;
-Chart.defaults.plugins.title.color = "#072635";
+Chart.register(...registerables);
 
-Chart.defaults.plugins.legend.display = false;
-
-Chart.defaults.plugins.subtitle.display = true;
-Chart.defaults.plugins.subtitle.align = "end";
-Chart.defaults.plugins.subtitle.font.size = 14;
-Chart.defaults.plugins.subtitle.color = "";
-
-Chart.defaults.maintainAspectRatio = false;
-Chart.defaults.responsive = true;
-
-const DiagnosisContainer = styled.div`
-	max-width: 780px;
-	position: relative;
+const Container = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 367px;
+	gap: 20px;
 `;
 
-const ChartContainer = styled.div`
-	width: 100%;
-	display: flex;
-	align-content: center;
-	gap: 20px;
-	background: var(--bg-secondary);
+const MainContent = styled.div`
+	background: var(--white-0);
 	padding: 20px;
 	border-radius: 20px;
 	margin-bottom: 20px;
 `;
 
-const CardsContainer = styled.div`
+const ChartContainer = styled.div`
 	width: 100%;
+	height: 300px;
+	margin-bottom: 20px;
+`;
+
+const CardsContainer = styled.div`
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 	gap: 20px;
 `;
 
 const Card = styled.div`
-	width: 250px;
+	flex: 1;
 	padding: 20px;
 	border-radius: 10px;
+	text-align: left;
 `;
 
 const PatientInfo = styled.div`
-	width: 330px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin-top: -20px;
-	border-radius: 20px;
 	background: var(--white-0);
+	margin-bottom: 20px;
+	padding: 20px;
+	border-radius: 20px;
 `;
 
 const ProfilePicture = styled.img`
-	width: 200px;
-	height: 200px;
-	display: inline-block;
-	margin: 20px auto;
+	width: 150px;
+	height: 150px;
 	border-radius: 50%;
-	text-align: center;
+	margin: 10px auto 20px;
+	object-fit: cover;
+`;
+
+const LabResults = styled.div`
+	margin-top: 10px;
+`;
+
+const DownloadButton = styled.div`
+	width: 100%;
+	padding: 10px;
+	margin-top: 5px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+
+	&:hover {
+		background-color: #f0f0f0;
+	}
 `;
 
 function PatientDetails() {
@@ -78,315 +80,214 @@ function PatientDetails() {
 	);
 
 	const chartData = {
-		labels: [],
+		labels: curPatient?.diagnosis_history
+			.slice(0, 6)
+			.map((record) => `${record.month.slice(0, 3)} ${record.year}`)
+			.reverse(),
 		datasets: [
 			{
 				label: "Systolic",
-				data: [],
+				data: curPatient?.diagnosis_history
+					.slice(0, 6)
+					.map((record) => record.blood_pressure.systolic.value)
+					.reverse(),
 				borderColor: "#C26EB4",
-				pointBorderColor: "#E66FD2",
-				pointHoverBorderColor: "#C26EB4",
-				pointHoverBorderWidth: 3,
-				pointBorderWidth: 5,
-				borderWidth: 1.5,
-				fill: false,
 				tension: 0.4,
 			},
 			{
 				label: "Diastolic",
-				data: [],
+				data: curPatient?.diagnosis_history
+					.slice(0, 6)
+					.map((record) => record.blood_pressure.diastolic.value)
+					.reverse(),
 				borderColor: "#7E6CAB",
-				pointBorderColor: "#8C6FE6",
-				pointHoverBorderColor: "#7E6CAB",
-				pointHoverBorderWidth: 3,
-				pointBorderWidth: 5,
-				borderWidth: 1.5,
-				fill: false,
 				tension: 0.4,
 			},
 		],
 	};
 
-	curPatient?.diagnosis_history.forEach((record) => {
-		const month = `${record.month.slice(0, 3)}, ${record.year}`;
-		chartData.labels.push(month);
-		chartData.datasets[0].data.push(record.blood_pressure.systolic.value);
-		chartData.datasets[1].data.push(record.blood_pressure.diastolic.value);
-	});
+	const latestDiagnosis = curPatient?.diagnosis_history[0];
 
-	const respiratoryRates = [];
-	const heartRates = [];
-	const temperature = [];
-
-	curPatient?.diagnosis_history.map((item) => {
-		respiratoryRates.push(item.respiratory_rate.value);
-		heartRates.push(item.heart_rate.value);
-		temperature.push(item.temperature.value);
-	});
-
-	function average(numbers) {
-		let sum = numbers.reduce((a, b) => a + b, 0);
-		return sum / numbers.length;
-	}
-
-	const averageResp = average(respiratoryRates).toFixed(1);
-	const averageHeartRates = average(heartRates).toFixed(1);
-	const averageTemperature = average(temperature).toFixed(1);
-
-	console.log(curPatient);
+	if (!name)
+		return (
+			<div className='w-full h-auto flex items-center justify-center'>
+				<p>Please select a patient to view details</p>
+			</div>
+		);
 
 	return (
-		<div
-			style={{
-				display: "grid",
-				gridTemplateColumns: "1fr 367px",
-				gap: "20px",
-			}}>
-			<DiagnosisContainer>
-				<div
-					style={{
-						background: "var(--white-0)",
-						padding: "20px",
-						borderRadius: "20px",
-						marginBottom: "20px",
-					}}>
-					<h2 style={{ marginBottom: "20px" }}>Diagnosis History</h2>
+		<Container>
+			<div>
+				<MainContent>
+					<h2 className='font-extrabold text-3xl text-[var(--text-dark)]'>
+						Diagnosis History
+					</h2>
 					<ChartContainer>
-						<div>
-							<Line
-								style={{ height: "298px" }}
-								data={chartData}
-								options={{
-									plugins: {
-										title: {
-											text: "Blood Pressure",
-											display: true,
-										},
-										subtitle: {
-											text: "Last 6 months",
-											display: true,
-										},
-										legend: {
-											labels: {
-												fontSize: 14,
-												fontColor: "#333",
-											},
-										},
+						<Line
+							data={chartData}
+							options={{
+								responsive: true,
+								maintainAspectRatio: false,
+								plugins: {
+									title: {
+										display: true,
+										text: "Blood Pressure",
+										align: "start",
 									},
-									scales: {
-										x: {
-											grid: {
-												display: false,
-											},
-										},
-										y: {
-											min: 60,
-											max: 180,
-											ticks: {
-												stepSize: 20,
-											},
-											grid: {
-												drawBorder: false,
-											},
-										},
+									legend: {
+										display: true,
+										position: "top",
 									},
-								}}
-							/>
-						</div>
-
-						<div className='estimate'>hello</div>
+								},
+								scales: {
+									y: {
+										beginAtZero: true,
+										max: 200,
+									},
+								},
+							}}
+						/>
 					</ChartContainer>
 					<CardsContainer>
 						<Card style={{ backgroundColor: "#E0F3FA" }}>
 							<img
 								src='/icons/diaphragm.svg'
-								alt='Respiratory Rate'
+								alt='diaphragm'
 							/>
-							<h3>Respiratory Rate</h3>
-							<h2>{averageResp} Bpm</h2>
-							<p>
-								{averageResp >= 20 && "Normal"}
-								{averageResp > 60 && "Above Average"}
-								{averageResp < 10 && "Below Average"}
-							</p>
+							<h3 className='text-xl text-[var(--text-dark)] mt-4'>
+								Respiratory Rate
+							</h3>
+							<h2 className='text-3xl text-[var(--text-dark)] font-extrabold mb-4'>
+								{latestDiagnosis?.respiratory_rate.value} bpm
+							</h2>
+							<p>{latestDiagnosis?.respiratory_rate.levels}</p>
 						</Card>
 						<Card style={{ backgroundColor: "#FFE6E9" }}>
 							<img
 								src='/icons/temperature.svg'
-								alt='Temperature'
+								alt='thermometer'
 							/>
-							<h3>Temperature</h3>
-							<h2>{averageTemperature} °F</h2>
-							<p>
-								{averageTemperature <= 100 && "Normal"}
-								{averageTemperature > 100 && "Above Average"}
-								{averageTemperature < 70 && "Below Average"}
-							</p>
+							<h3 className='text-xl text-[var(--text-dark)] mt-4'>
+								Temperature
+							</h3>
+							<h2 className='text-3xl text-[var(--text-dark)] font-extrabold mb-4'>
+								{latestDiagnosis?.temperature.value}°F
+							</h2>
+							<p>{latestDiagnosis?.temperature.levels}</p>
 						</Card>
 						<Card style={{ backgroundColor: "#FFE6F1" }}>
-							<img src='/icons/HeartBPM.svg' alt='Heart Rate' />
-							<h3>Heart Rate</h3>
-							<h2>{averageHeartRates} Bpm</h2>
-							<p>
-								{averageHeartRates >= 70 && "Normal"}
-								{averageHeartRates > 190 && "Above Average"}
-								{averageHeartRates < 70 && "Below Average"}
+							<img
+								src='/icons/HeartBPM.svg'
+								alt='heart'
+							/>
+							<h3 className='text-xl text-[var(--text-dark)] mt-4'>
+								Heart Rate
+							</h3>
+							<h2 className='text-3xl text-[var(--text-dark)] font-extrabold mb-4'>
+								{latestDiagnosis?.heart_rate.value} bpm
+							</h2>
+							<p className='flex items-center'>
+								{latestDiagnosis?.heart_rate.levels}
 							</p>
 						</Card>
 					</CardsContainer>
-				</div>
-				<div
-					className='diagnostics_list'
-					style={{
-						background: "var(--white-0)",
-						padding: "20px",
-						borderRadius: "20px",
-						marginBottom: "20px",
-					}}>
-					<h2 style={{ marginBottom: "20px" }}>Diagnostic List</h2>
-					<div style={{ fontSize: "14px" }}>
-						<div
-							className='list-head'
-							style={{
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "space-between",
-								paddingInline: "10px",
-								background: "var(--bg-secondary)",
-								padding: "12px 20px",
-								borderRadius: "50vw",
-							}}>
-							<h3>Problem/Diagnosis</h3>
-							<h3>Description</h3>
-							<h3>Status</h3>
-						</div>
-						<DiagnosticsList list={curPatient?.diagnostic_list} />
-					</div>
-				</div>
-			</DiagnosisContainer>
-
-			<PatientInfo>
-				<div className='user'>
-					<div style={{ textAlign: "center" }}>
-						<ProfilePicture
-							src={curPatient?.profile_picture}
-							alt='Jessica Taylor'
+				</MainContent>
+				<MainContent>
+					<h2 className='font-extrabold text-3xl mb-4 text-[var(--text-dark)]'>
+						Diagnostic List
+					</h2>
+					<DiagnosticsList list={curPatient?.diagnostic_list} />
+				</MainContent>
+			</div>
+			<div>
+				<PatientInfo>
+					<ProfilePicture
+						src={curPatient?.profile_picture}
+						alt={curPatient?.name}
+					/>
+					<h2 className='text-center font-extrabold text-3xl text-[var(--text-dark)] mb-8'>
+						{curPatient?.name}
+					</h2>
+					<div className='flex flex-col gap-12 justify-center'>
+						<PatientInfoCard
+							icon={"/icons/calendar_today.svg"}
+							title={"Date Of Birth:"}
+							detail={curPatient?.date_of_birth}
 						/>
-						<h3>Jessica Taylor</h3>
+						<PatientInfoCard
+							icon={`/icons/${
+								curPatient?.gender === "male"
+									? "MaleIcon"
+									: "FemaleIcon"
+							}.svg`}
+							title={"Gender:"}
+							detail={curPatient?.gender}
+						/>
+						<PatientInfoCard
+							icon={"/icons/PhoneIcon.svg"}
+							title={"Contact info:"}
+							detail={curPatient?.phone_number}
+						/>
+						<PatientInfoCard
+							icon={"/icons/PhoneIcon.svg"}
+							title={"emergency contacts:"}
+							detail={curPatient?.emergency_contact}
+						/>
+						<PatientInfoCard
+							icon={"/icons/InsuranceIcon.svg"}
+							title={"insurance provider:"}
+							detail={curPatient?.insurance_type}
+						/>
+						<button className='rounded-2xl bg-[--bg-active-1] text-black p-2 font-semibold w-2/3 mx-auto capitalize text center'>
+							show all information
+						</button>
 					</div>
-					<p>Date Of Birth: August 23, 1996</p>
-					<p>Gender: Female</p>
-					<p>Contact Info: (415) 555-1234</p>
-					<p>Emergency Contacts: (415) 555-5678</p>
-				</div>
-			</PatientInfo>
-		</div>
+				</PatientInfo>
+
+				<PatientInfo className='max-h-[300px]'>
+					<h3 className='font-extrabold text-3xl text-[var(--text-dark)]'>
+						Lab Results
+					</h3>
+					<LabResults className='max-h-[200px] overflow-y-scroll'>
+						{curPatient?.lab_results.map((result, index) => (
+							<DownloadButton
+								className='flex items-center '
+								key={index}>
+								<span className='text-left text-lg mr-auto'>
+									{result}
+								</span>
+								<span className='mr-4'>
+									<img
+										className='w-4 h-4'
+										src='/icons/downloadIcon.svg'
+										alt='download'
+									/>
+								</span>
+							</DownloadButton>
+						))}
+					</LabResults>
+				</PatientInfo>
+			</div>
+		</Container>
 	);
 }
 
 export default PatientDetails;
 
-// /* eslint-disable no-unused-vars */
-// import Chart from "chart.js/auto";
-// import { useParams } from "react-router-dom";
-// import { usePatients } from "../hooks/PatientProvider";
-// import { Line } from "react-chartjs-2";
-
-// Chart.defaults.plugins.title.display = true;
-// Chart.defaults.plugins.title.align = "start";
-// Chart.defaults.plugins.title.font.size = 18;
-// Chart.defaults.plugins.title.color = "#072635";
-
-// Chart.defaults.plugins.subtitle.display = true;
-// Chart.defaults.plugins.subtitle.align = "end";
-// Chart.defaults.plugins.subtitle.font.size = 14;
-// Chart.defaults.plugins.subtitle.color = "";
-
-// // Chart.defaults.maintainAspectRatio = false;
-// // Chart.defaults.responsive = true;
-
-// function PatientDetails() {
-// 	const { name } = useParams();
-// 	const { patients } = usePatients();
-// 	const curPatient = patients.find(
-// 		(patient) => patient.name === name.split("+").join(" ")
-// 	);
-
-// 	const chartData = {
-// 		labels: [],
-// 		datasets: [
-// 			{
-// 				label: "Systolic",
-// 				data: [],
-// 				borderColor: "#C26EB4",
-// 				pointBorderColor: "#E66FD2",
-// 				pointHoverBorderColor: "#C26EB4",
-// 				pointHoverBorderWidth: 10,
-// 				pointBorderWidth: 14,
-// 				fill: false,
-// 				tension: 0.4,
-// 			},
-// 			{
-// 				label: "Diastolic",
-// 				data: [],
-// 				borderColor: "#7E6CAB",
-// 				pointBorderColor: "#8C6FE6",
-// 				pointHoverBorderColor: "#7E6CAB",
-// 				pointHoverBorderWidth: 10,
-// 				pointBorderWidth: 14,
-// 				fill: false,
-// 				tension: 0.4,
-// 			},
-// 		],
-// 	};
-
-// 	curPatient?.diagnosis_history.forEach((record) => {
-// 		const month = `${record.month.slice(0, 3)}, ${record.year}`;
-// 		chartData.labels.push(month);
-// 		chartData.datasets[0].data.push(record.blood_pressure.systolic.value);
-// 		chartData.datasets[1].data.push(record.blood_pressure.diastolic.value);
-// 	});
-
-// 	// console.log(curPatient);
-// 	// console.log(chartData);
-
-// 	return (
-// 		<div>
-// 			<div className='diagnosis_history' style={{ width: "768px" }}>
-// 				<h2 style={{ marginBottom: "20px" }}>Diagnosis History</h2>
-// 				<div
-// 					className='chart'
-// 					style={{
-// 						width: "70%",
-// 						background: "var(--bg-secondary)",
-// 						padding: "20px",
-// 						borderRadius: "20px",
-// 					}}>
-// 					<Line
-// 						data={chartData}
-// 						options={{
-// 							plugins: {
-// 								title: {
-// 									text: "Blood Pressure",
-// 								},
-// 								subtitle: {
-// 									text: `Last 6 months`,
-// 								},
-// 							},
-// 						}}
-// 					/>
-// 				</div>
-// 				<div className='cards'>
-// 					<div className='card respiratory'>
-// 						<img
-// 							src='/public/icons/diaphragm.svg'
-// 							alt='Diaphragm'
-// 						/>
-// 					</div>
-// 				</div>
-// 			</div>
-// 			<div className='diagnosis_list'></div>
-// 		</div>
-// 	);
-// }
-// export default PatientDetails;
+function PatientInfoCard({ icon, title, detail }) {
+	return (
+		<div className='flex items-center gap-6 -mb-4'>
+			<div className='rounded-full bg-slate-200 w-12 flex items-center justify-center h-12'>
+				<img
+					className='object-cover'
+					src={icon}
+					alt='icon'
+				/>
+			</div>
+			<div className='flex flex-col '>
+				<p className='capitalize'>{title}</p>
+				<p className='capitalize font-semibold'>{detail}</p>
+			</div>
+		</div>
+	);
+}

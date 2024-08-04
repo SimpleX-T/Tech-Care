@@ -4,7 +4,7 @@ import PatientList from "./PatientList";
 const Aside = styled.aside`
 	/* position: fixed; */
 	width: 100%;
-	height: 1080px;
+	height: 930px;
 	background: var(--white-0);
 	border-radius: 20px;
 	overflow: hidden;
@@ -23,10 +23,11 @@ function Sidebar() {
 					padding: "20px",
 				}}>
 				<h2
+					className='mr-auto text-3xl font-extrabold text-[var(--text-dark)]'
 					style={{
 						marginRight: "auto",
 						fontSize: "24px",
-						color: "var(--text-dark)",
+						color: "",
 					}}>
 					Patients
 				</h2>
